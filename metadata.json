@@ -1,0 +1,6 @@
+{
+  "name": "Sistem Informasi Data Guru & Tenaga Kependidikan (GTK)",
+  "description": "Aplikasi pengelolaan data Guru dan Tenaga Kependidikan responsive dengan fitur CRUD (tambah, ubah, hapus), pencarian cepat, filter, dan integrasi Express & MySQL.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
