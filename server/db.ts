@@ -186,30 +186,25 @@ let mysqlPool: mysql.Pool | null = null;
 let isMysqlActive = false;
 let mysqlStatusMsg = "Inisialisasi Database MySQL...";
 
-function ensureMySQLDaemon(): void {
-  try {
-    try {
-      execSync("/etc/init.d/mariadb status", { stdio: "ignore" });
-    } catch {
-      console.log("[Database] Menjalankan server MariaDB/MySQL...");
-      execSync("/etc/init.d/mariadb start || service mariadb start", {
-        stdio: "ignore",
-      });
-    }
-  } catch (err: any) {
-    console.warn(
-      "[Database] Peringatan saat memastikan service MySQL berjalan:",
-      err?.message,
-    );
-  }
-}
+// function ensureMySQLDaemon(): void {
+//   try {
+//     try {
+//       execSync("/etc/init.d/mariadb status", { stdio: "ignore" });
+//     } catch {
+//       console.log("[Database] Menjalankan server MariaDB/MySQL...");
+//       execSync("/etc/init.d/mariadb start || service mariadb start", {
+//         stdio: "ignore",
+//       });
+//     }
+//   } catch (err: any) {
+//     console.warn(
+//       "[Database] Peringatan saat memastikan service MySQL berjalan:",
+//       err?.message,
+//     );
+//   }
+// }
 
 export async function initDatabase(): Promise<void> {
-  // const host = process.env.MYSQL_HOST || "127.0.0.1";
-  // const user = process.env.MYSQL_USER || "root";
-  // const password = process.env.MYSQL_PASSWORD || "";
-  // const database = process.env.MYSQL_DATABASE || "db_sekolah";
-  // const port = Number(process.env.MYSQL_PORT) || 3306;
   const mysqlUrl = process.env.MYSQL_URL;
 
   if (!mysqlUrl) {
@@ -221,48 +216,10 @@ export async function initDatabase(): Promise<void> {
 
     const pool = mysql.createPool(mysqlUrl);
 
-    // Test connection
+    // Test koneksi
     await pool.query("SELECT 1 as ping");
 
-  // Auto-start MySQL daemon if localhost
-  // if (host === "127.0.0.1" || host === "localhost") {
-  //   ensureMySQLDaemon();
-  // }
-
-  try {
-  //   console.log(`[Database] Menghubungkan ke MySQL di ${host}:${port}...`);
-
-    // First ensure database exists
-    // const adminConnection = await mysql.createConnection({
-    //   host,
-    //   port,
-    //   user,
-    //   password,
-    //   connectTimeout: 5000,
-    // });
-    // await adminConnection.query(
-    //   `CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
-    // );
-    // await adminConnection.end();
-
-    // Create pool for the targeted database
-    // const pool = mysql.createPool({
-    //   host,
-    //   port,
-    //   user,
-    //   password,
-    //   database,
-    //   waitForConnections: true,
-    //   connectionLimit: 15,
-    //   queueLimit: 0,
-    //   connectTimeout: 5000,
-    //   dateStrings: true, // Return dates as string YYYY-MM-DD
-    // });
-
-    // Test connection
-    await pool.query("SELECT 1 as ping");
-
-    // Create GTK table if not exists
+    // Buat tabel GTK jika belum ada
     await pool.query(`
       CREATE TABLE IF NOT EXISTS gtk (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -289,12 +246,15 @@ export async function initDatabase(): Promise<void> {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `);
 
-    // Check if table is empty, if so seed it
+    // Cek apakah tabel masih kosong
     const [countResult]: any = await pool.query(
       "SELECT COUNT(*) as count FROM gtk",
     );
-    if (countResult[0]?.count === 0) {
+
+    // Jika kosong, masukkan data awal
+    if (Number(countResult[0]?.count || 0) === 0) {
       console.log("[Database] Mengisi data awal ke tabel gtk di MySQL...");
+
       for (const item of initialData) {
         await pool.query(
           `INSERT INTO gtk (
@@ -325,18 +285,23 @@ export async function initDatabase(): Promise<void> {
           ],
         );
       }
+
       console.log("[Database] Berhasil memuat data awal ke MySQL.");
     }
 
+    // Simpan pool
     mysqlPool = pool;
     isMysqlActive = true;
-    mysqlStatusMsg =
-  "Database MySQL Railway terhubung. Seluruh perubahan data tersimpan langsung di MySQL.";
 
-console.log("[Database] " + mysqlStatusMsg);
+    mysqlStatusMsg =
+      "Database MySQL Railway terhubung. Seluruh perubahan data tersimpan langsung di MySQL.";
+
+    console.log("[Database] " + mysqlStatusMsg);
   } catch (err: any) {
-    console.error("[Database] Kesalahan koneksi MySQL:", err.message);
-    mysqlStatusMsg = `Koneksi MySQL Gagal: ${err.message}`;
+    console.error("[Database] Kesalahan koneksi MySQL:", err?.message);
+
+    mysqlStatusMsg = `Koneksi MySQL Gagal: ${err?.message}`;
+
     throw err;
   }
 }
