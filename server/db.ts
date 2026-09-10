@@ -1,5 +1,5 @@
 import mysql from "mysql2/promise";
-import { execSync } from "child_process";
+// import { execSync } from "child_process";
 import { GTKItem, GTKFormData, GTKStats, DbStatus } from "../src/types.ts";
 
 const initialData: Omit<GTKItem, "created_at" | "updated_at">[] = [
@@ -205,46 +205,59 @@ function ensureMySQLDaemon(): void {
 }
 
 export async function initDatabase(): Promise<void> {
-  const host = process.env.MYSQL_HOST || "127.0.0.1";
-  const user = process.env.MYSQL_USER || "root";
-  const password = process.env.MYSQL_PASSWORD || "";
-  const database = process.env.MYSQL_DATABASE || "db_sekolah";
-  const port = Number(process.env.MYSQL_PORT) || 3306;
+  // const host = process.env.MYSQL_HOST || "127.0.0.1";
+  // const user = process.env.MYSQL_USER || "root";
+  // const password = process.env.MYSQL_PASSWORD || "";
+  // const database = process.env.MYSQL_DATABASE || "db_sekolah";
+  // const port = Number(process.env.MYSQL_PORT) || 3306;
+  const mysqlUrl = process.env.MYSQL_URL;
 
-  // Auto-start MySQL daemon if localhost
-  if (host === "127.0.0.1" || host === "localhost") {
-    ensureMySQLDaemon();
+  if (!mysqlUrl) {
+    throw new Error("MYSQL_URL belum ditemukan di environment variables.");
   }
 
   try {
-    console.log(`[Database] Menghubungkan ke MySQL di ${host}:${port}...`);
+    console.log("[Database] Menghubungkan ke MySQL Railway...");
+
+    const pool = mysql.createPool(mysqlUrl);
+
+    // Test connection
+    await pool.query("SELECT 1 as ping");
+
+  // Auto-start MySQL daemon if localhost
+  // if (host === "127.0.0.1" || host === "localhost") {
+  //   ensureMySQLDaemon();
+  // }
+
+  try {
+  //   console.log(`[Database] Menghubungkan ke MySQL di ${host}:${port}...`);
 
     // First ensure database exists
-    const adminConnection = await mysql.createConnection({
-      host,
-      port,
-      user,
-      password,
-      connectTimeout: 5000,
-    });
-    await adminConnection.query(
-      `CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
-    );
-    await adminConnection.end();
+    // const adminConnection = await mysql.createConnection({
+    //   host,
+    //   port,
+    //   user,
+    //   password,
+    //   connectTimeout: 5000,
+    // });
+    // await adminConnection.query(
+    //   `CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`,
+    // );
+    // await adminConnection.end();
 
     // Create pool for the targeted database
-    const pool = mysql.createPool({
-      host,
-      port,
-      user,
-      password,
-      database,
-      waitForConnections: true,
-      connectionLimit: 15,
-      queueLimit: 0,
-      connectTimeout: 5000,
-      dateStrings: true, // Return dates as string YYYY-MM-DD
-    });
+    // const pool = mysql.createPool({
+    //   host,
+    //   port,
+    //   user,
+    //   password,
+    //   database,
+    //   waitForConnections: true,
+    //   connectionLimit: 15,
+    //   queueLimit: 0,
+    //   connectTimeout: 5000,
+    //   dateStrings: true, // Return dates as string YYYY-MM-DD
+    // });
 
     // Test connection
     await pool.query("SELECT 1 as ping");
@@ -317,8 +330,10 @@ export async function initDatabase(): Promise<void> {
 
     mysqlPool = pool;
     isMysqlActive = true;
-    mysqlStatusMsg = `Database MySQL Terhubung (${host}:${port}/${database}). Seluruh perubahan data tersimpan langsung di MySQL.`;
-    console.log("[Database] " + mysqlStatusMsg);
+    mysqlStatusMsg =
+  "Database MySQL Railway terhubung. Seluruh perubahan data tersimpan langsung di MySQL.";
+
+console.log("[Database] " + mysqlStatusMsg);
   } catch (err: any) {
     console.error("[Database] Kesalahan koneksi MySQL:", err.message);
     mysqlStatusMsg = `Koneksi MySQL Gagal: ${err.message}`;
