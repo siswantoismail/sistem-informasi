@@ -46,23 +46,25 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Action Buttons */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Database indicator */}
-            {/* <button
+            <button
               id="btn-db-status"
               type="button"
               onClick={onOpenDbModal}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                 dbStatus?.connected
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
-                  : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+                  ? "bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100"
+                  : "bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100"
               }`}
               title="Klik untuk konfigurasi dan skema MySQL"
             >
               <Database className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Database:</span>
               <span className="font-semibold">
-                {dbStatus?.connected ? 'MySQL Aktif' : 'Penyimpanan Persisten (Siap MySQL)'}
+                {dbStatus?.connected
+                  ? "MySQL Aktif"
+                  : "Penyimpanan Persisten (Siap MySQL)"}
               </span>
-            </button> */}
+            </button>
 
             {/* Refresh button */}
             <button
