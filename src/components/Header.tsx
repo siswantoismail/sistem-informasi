@@ -1,6 +1,6 @@
-import React from 'react';
-import { School, Plus, Database, Download, RefreshCw } from 'lucide-react';
-import { DbStatus } from '../types.ts';
+import React from "react";
+import { School, Plus, Database, Download, RefreshCw } from "lucide-react";
+import { DbStatus } from "../types.ts";
 
 interface HeaderProps {
   dbStatus: DbStatus | null;
@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Right Action Buttons */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {/* Database indicator */}
-            <button
+            {/* <button
               id="btn-db-status"
               type="button"
               onClick={onOpenDbModal}
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({
               <span className="font-semibold">
                 {dbStatus?.connected ? 'MySQL Aktif' : 'Penyimpanan Persisten (Siap MySQL)'}
               </span>
-            </button>
+            </button> */}
 
             {/* Refresh button */}
             <button
@@ -73,7 +73,9 @@ export const Header: React.FC<HeaderProps> = ({
               className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors disabled:opacity-50"
               title="Segarkan Data"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${isLoading ? "animate-spin text-emerald-600" : ""}`}
+              />
             </button>
 
             {/* Export button */}
